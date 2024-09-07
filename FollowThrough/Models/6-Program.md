@@ -4,6 +4,8 @@ name
 college_id
 faculty_id
 department_id
+type
+span
 timestamps
 
 Eg:
@@ -41,3 +43,4 @@ Eg:
 
 # Users
 
+<!-- ---------------- -->

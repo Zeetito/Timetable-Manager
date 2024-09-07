@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('class_group_divisions', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('class_group_id');
+            $table->text('users_id');
             $table->timestamps();
         });
     }

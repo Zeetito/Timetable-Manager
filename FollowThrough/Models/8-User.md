@@ -42,8 +42,8 @@ Eg:
 - othername [string]->nullable()
 - lastname [string]->nullable()
 - gender [char]
-- identity_number [string]
-- index_number [string]
+- identity_number [string]->nullable()
+- index_number [string]->nullable()
 - is_staff [boolean]
 - program_id [foreignId]
 - class_group_id [foreignId]
@@ -51,15 +51,15 @@ Eg:
 - password [string]
 
 ### RELATIONSHIPS
+# ClassGroup
+
+# Program
+<!-- ------------------------ -->
 # College
 
 # Faculty
 
 # Department
-
-# Program
-
-# ClassGroup
 
 # Course
 

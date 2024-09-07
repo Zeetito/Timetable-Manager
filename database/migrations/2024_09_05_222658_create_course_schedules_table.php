@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('course_schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->double('duration',2,1)->nullable();
+            $table->foreignId('room_id');
+            $table->integer('day');
+            $table->foreignId('semester_id');
             $table->timestamps();
         });
     }

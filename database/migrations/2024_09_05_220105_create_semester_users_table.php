@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('semester_users', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->foreignId('semester_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+                    
             $table->timestamps();
         });
     }

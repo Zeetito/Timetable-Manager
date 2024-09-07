@@ -3,13 +3,15 @@
 value
 start_date
 end_date
+is_active
 academic_year_id
 
 Eg:
 - id: 1
 - value: 1
 - start_date: 2025-01-06
-- enddate_date: 2025-04-23
+- end_date: 2025-04-23
+- is_active: 1
 - academic_year_id: 1
 
 
@@ -22,11 +24,12 @@ Eg:
 - start_date [date]
 - end_date [date]
 - academic_year_id [foreignId]
+- is_active [boolean]
 - timestamps [timestamps]
 
 ### RELATIONSHIPS
 # Academic Year
-
+<!-- ----------------- -->
 # Courses
 
 # CourseSchedule

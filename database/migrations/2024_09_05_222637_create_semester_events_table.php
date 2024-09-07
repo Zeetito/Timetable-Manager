@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('semester_events', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->text('contact_info')->nullable();
+            $table->boolean('is_active')->nullable();
+            $table->foreignId('semester_id')->nullable()
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('set null');
+                
+
             $table->timestamps();
         });
     }

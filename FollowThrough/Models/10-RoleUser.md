@@ -24,7 +24,6 @@ Eg:
 
 ### Database Structure
 - id: 
-- name: [String]
 - role_id:  [foreignId]
 - user_id:  [foreignId]
 - subjectable_id: [integer]
@@ -36,9 +35,8 @@ Eg:
 
 # User
 
-# Subjectable
+# Subject
 
-# Subjects
 
 
 

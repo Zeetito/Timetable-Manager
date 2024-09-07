@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('class_group_courses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('class_group_id');
+            $table->foreignId('course_id');
+            $table->foreignId('semester_id');
             $table->timestamps();
         });
     }

@@ -13,6 +13,24 @@ return new class extends Migration
     {
         Schema::create('course_users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->foreignId('user_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->double('score',3,2)->nullable();
+
+            $table->foreignId('semester_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+
             $table->timestamps();
         });
     }

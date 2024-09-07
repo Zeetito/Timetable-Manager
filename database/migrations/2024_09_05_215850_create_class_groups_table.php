@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('class_groups', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('program_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->integer('year');
+
+            $table->boolean('is_divided')->nullable(0);
+                    
+            $table->date('start_year');
+            $table->date('end_year');
             $table->timestamps();
+
+            // $table->primary(['program_id', 'year']);
         });
     }
 

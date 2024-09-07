@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('department_id')->nullable()
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+            $table->string('floor')->nullable();
+            $table->integer('type')->default(0);
+            $table->integer('exams_cap')->nullable();
+            $table->integer('reg_cap')->nullable();
+            $table->integer('max_cap')->nullable();
+            $table->string('location')->nullable();
             $table->timestamps();
         });
     }

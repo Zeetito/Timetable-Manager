@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->integer('credit_hour')->nullable();
+            $table->foreignId('department_id')->nullable()
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('set null');
+
+            $table->text('lecturers_id')->nullable();
             $table->timestamps();
+
         });
     }
 

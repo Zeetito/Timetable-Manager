@@ -2,10 +2,52 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\College;
+use App\Models\Faculty;
+use App\Models\ClassGroup;
+use App\Models\Department;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Program extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'college_id',
+        'faculty_id',
+        'department_id',
+        'type',
+        'span',
+    ];
+
+    // RELATIONSHIPS
+    public function college()
+    {
+        return $this->belongsTo(College::class);
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function class_groups()
+    {
+        return $this->hasMany(ClassGroup::class);
+    }
+
+    // Users
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

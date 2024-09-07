@@ -4,6 +4,7 @@
 - course_id
 - start_time
 - end_time
+- duration
 - room_id
 - day
 - semester_id
@@ -15,6 +16,7 @@ Eg:
 - course_id: 3
 - start_time : 08:00:00
 - end_time: 10:00:00
+- duration: 2
 - room_id: 45
 - day: 4
 - semester_id: 4
@@ -30,6 +32,7 @@ Eg:
 - course_id [foreignId]
 - start_time [Time]
 - end_time [Time]
+- duration [double]
 - room_id [foreignId]
 - day [integer]
 - semester_id [foreignId]

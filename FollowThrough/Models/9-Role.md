@@ -29,7 +29,8 @@ Eg:
 - id: 
 - name: [String]
 - slug:  [String]
-- subject_type [String]
+- description:  [String]
+- subjectable_type [String]
 - level: [integer]
 
 

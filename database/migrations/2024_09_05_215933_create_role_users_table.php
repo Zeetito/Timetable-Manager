@@ -13,6 +13,20 @@ return new class extends Migration
     {
         Schema::create('role_users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('role_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->foreignId('user_id')
+                    ->constrained()
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
+            $table->bigInteger('subjectable_id')->nullable();
+            $table->string('subjectable_type');
+
+
             $table->timestamps();
         });
     }
