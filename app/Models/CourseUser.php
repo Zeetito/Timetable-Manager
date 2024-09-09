@@ -2,9 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Semester;
+use App\Models\Scopes\SemesterScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+#[ScopedBy([SemesterScope::class])]
 class CourseUser extends Model
 {
     use HasFactory;
@@ -15,4 +21,23 @@ class CourseUser extends Model
         'score',
         'semester_id',
     ];
+
+    // RELATIONSHIPS
+    // Get user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Get course
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    // Get Semester
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
+    }
 }

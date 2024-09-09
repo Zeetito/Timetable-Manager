@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->integer('year');
 
-            $table->boolean('is_divided')->nullable(0);
+            $table->boolean('is_divided')->default(0);
                     
             $table->date('start_year');
             $table->date('end_year');

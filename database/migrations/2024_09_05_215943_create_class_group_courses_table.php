@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('class_group_id');
             $table->foreignId('course_id');
             $table->foreignId('semester_id');
+            $table->boolean('is_elective')->default(0);
             $table->timestamps();
         });
     }

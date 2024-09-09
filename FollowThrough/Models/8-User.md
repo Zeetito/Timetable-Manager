@@ -33,7 +33,7 @@ Eg:
 ## Appended Attributes
     fullname,
     class_slug, eg: CS3-B
-    
+    semester_id
 
 ### Database Structure
 - id
@@ -69,6 +69,18 @@ Eg:
 
 # Lecturers - forSem
 
+# User Semester (If the user desires to see the system based on a particular semester)
 
 
+
+<!-- PUBLIC STATIC FUNCTION -->
+# Staff()
+
+
+<!-- Other Attributes -->
+Semester_id
+
+Registered Courses
+
+Registered Credit Hours
 

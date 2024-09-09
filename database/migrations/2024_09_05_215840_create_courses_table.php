@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code')->unique();
+            // $table->string('code')->unique();
+            $table->string('code');
             $table->integer('credit_hour')->nullable();
             $table->foreignId('department_id')->nullable()
                     ->constrained()
@@ -25,6 +26,8 @@ return new class extends Migration
             $table->timestamps();
 
         });
+
+        // Check out for IDL courses
     }
 
     /**
