@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\College;
 use App\Models\Faculty;
+use App\Models\Program;
 use App\Models\ClassGroup;
 use App\Models\Department;
 use Illuminate\Database\Eloquent\Model;
@@ -61,5 +62,10 @@ class Program extends Model
     // Get undergraduage programs
     public static function ug(){
         return self::where('type','ug');
+    }
+
+    // INSTITUTE OF DISTANCE LEARNING
+    public static function idl_programs(){
+        return Program::whereBelongsTo(Department::where('name','INSTITUTE OF DISTANCE LEARNING')->first())->get();
     }
 }

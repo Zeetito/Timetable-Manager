@@ -127,5 +127,9 @@ class User extends Authenticatable
             return self::where('is_staff',0);
         }
 
+        // Get all Idl Students
+        public static function idl_students(){
+            return self::whereIn('class_group_id',ClassGroup::idl_class_groups()->pluck('id'))->get();
+        }
     
 }

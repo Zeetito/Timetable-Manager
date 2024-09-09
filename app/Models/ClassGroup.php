@@ -62,4 +62,9 @@ class ClassGroup extends Model
         return self::whereIn('program_id',Program::ug()->pluck('id'))->get();
     }
 
+    // idl ClassGroups
+    public static function idl_class_groups(){
+        return self::whereIn('program_id',Program::idl_programs()->pluck('id'))->get();
+    }
+
 }

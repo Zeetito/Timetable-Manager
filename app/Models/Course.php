@@ -23,4 +23,12 @@ class Course extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+
+    // PUBLIC STATIC FUNCTION
+    // Get idl courses
+    public static function idl_courses(){
+        return Course::whereBelongsTo(Department::where('name','INSTITUTE OF DISTANCE LEARNING')->first())->get();
+
+    }
 }
