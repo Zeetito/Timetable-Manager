@@ -53,6 +53,7 @@ class UserFactory extends Factory
                     'identity_number' => $this->faker->unique()->randomNumber(8),
                     'index_number' => $this->faker->unique()->randomNumber(8),
                     'class_group_id' => $classgroup->id,
+                    'department_id' => $classgroup->program->department_id,
                     'is_staff' => '0',
 
             ];
@@ -66,6 +67,7 @@ class UserFactory extends Factory
                     'identity_number' => $this->faker->unique()->randomNumber(8),
                     'index_number' => $this->faker->unique()->randomNumber(8),
                     'class_group_id' => $classgroup->id,
+                    'department_id' => $classgroup->program->department_id,
                     'is_staff' => '0',
 
             ];

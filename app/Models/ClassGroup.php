@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\ClassGroupCourse;
 use App\Models\ClassGroupDivision;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Resources\ClassGroupResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ClassGroup extends Model
@@ -17,10 +18,25 @@ class ClassGroup extends Model
     protected $fillable = [
         'program_id',
         'year',
-        'is_divided',
+        // 'is_divided',
         'start_year',
         'end_year',
     ];
+
+     // Override the toArray method
+     public function toArray()
+     {
+         // Use ClassGroupResource to transform the model's array
+         return (new ClassGroupResource($this))->resolve();
+     }
+ 
+     // Override the toJson method
+     public function toJson($options = 0)
+     {
+         // Use ClassGroupResource to transform the model's JSON representation
+         return (new ClassGroupResource($this))->toJson($options);
+     }
+ 
 
     // Attributes
     // Get courses attribute
@@ -36,10 +52,15 @@ class ClassGroup extends Model
         return $this->belongsTo(Program::class);
     }
 
+    // get college
+    public function college(){
+        return $this->program->college;
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);
-    }
+}
 
     public function divisions()
     {

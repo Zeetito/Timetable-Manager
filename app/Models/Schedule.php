@@ -4,16 +4,19 @@ namespace App\Models;
 
 use App\Models\Room;
 use App\Models\Semester;
+use App\Models\Scopes\SemesterScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+#[ScopedBy([SemesterScope::class])]
 class Schedule extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'schedulable_id',
-        'schedulable_type',
+        'scheduleable_id',
+        'scheduleable_type',
         'start_time',
         'end_time',
         'duration',

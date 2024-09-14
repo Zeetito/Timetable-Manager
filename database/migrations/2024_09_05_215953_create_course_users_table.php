@@ -23,7 +23,7 @@ return new class extends Migration
                     ->onUpdate('cascade')
                     ->onDelete('cascade');
 
-            $table->double('score',3,2)->nullable();
+            $table->double('score', 5, 2)->nullable();
 
             $table->foreignId('semester_id')
                     ->constrained()

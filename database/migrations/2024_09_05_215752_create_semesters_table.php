@@ -20,10 +20,12 @@ return new class extends Migration
                     ->onDelete('set null');
 
             $table->enum('value', ['1', '2', '3']);
-            $table->date('start_date')->unique();
+            $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(0);
             $table->timestamps();
+
+            $table->unique(['academic_year_id', 'value']);
         });
     }
 

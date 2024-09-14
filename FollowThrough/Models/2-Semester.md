@@ -27,6 +27,8 @@ Eg:
 - is_active [boolean]
 - timestamps [timestamps]
 
+unique ['academic_year_id,value']
+
 ### RELATIONSHIPS
 # Academic Year
 <!-- ----------------- -->
@@ -36,3 +38,6 @@ Eg:
 
 # CustomCourseSchedule
 
+### Notes
+## Semester 3
+# There could be a semester 3 but only staff and related students can see it.

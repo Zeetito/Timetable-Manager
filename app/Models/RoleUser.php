@@ -31,7 +31,8 @@ class RoleUser extends Model
     }
 
     // Get the subject
-    public function subject(){
+    public function subjectable()
+    {
         return $this->morphTo();
     }
 }

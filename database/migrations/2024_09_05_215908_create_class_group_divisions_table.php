@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('class_group_id');
-            $table->text('users_id');
+            $table->text('users_id')->nullable();
             $table->timestamps();
         });
     }

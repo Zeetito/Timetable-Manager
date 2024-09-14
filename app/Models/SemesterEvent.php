@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use App\Models\Semester;
+use App\Models\Scopes\SemesterScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+#[ScopedBy([SemesterScope::class])]
 class SemesterEvent extends Model
 {
     use HasFactory;

@@ -47,10 +47,12 @@ class Program extends Model
 
     // Users
 
-    public function users()
+    public function students()
     {
         return $this->hasMany(User::class);
     }
+
+
 
 
     // PUBLIC STATIC FUNCTIONS

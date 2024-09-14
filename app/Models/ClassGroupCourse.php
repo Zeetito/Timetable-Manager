@@ -18,7 +18,6 @@ class ClassGroupCourse extends Model
         'class_group_id',
         'course_id',
         'is_elective',
-        'duration',
         'semester_id',
     ];
 

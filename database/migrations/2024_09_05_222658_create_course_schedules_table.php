@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('course_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->double('duration',2,1)->nullable();
-            $table->foreignId('room_id');
-            $table->integer('day');
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            $table->double('duration',4,2)->nullable();
+            $table->foreignId('room_id')->nullable();
+            $table->integer('day')->nullable();
             $table->foreignId('semester_id');
             $table->timestamps();
         });

@@ -20,7 +20,7 @@ return new class extends Migration
                     ->onUpdate('cascade')
                     ->onDelete('set null');
 
-            $table->foreignId('location')->nullable();
+            $table->string('location')->nullable();
             $table->timestamps();
         });
     }
