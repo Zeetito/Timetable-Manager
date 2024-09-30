@@ -27,3 +27,11 @@
 
 ## CourseSchedule Class
     - Duration is in nearest whole number. factor for halves.
+
+
+    <!-- ----------------- -->
+    The new ProgramStream eyi affclassskects Users. query regural user
+    also affects Classgroups. Query Regular classgroups.
+    Check StreamStatus of user
+
+    Got To: Regular Users

@@ -21,7 +21,12 @@ return new class extends Migration
             $table->integer('day')->nullable();
             $table->foreignId('semester_id');
             $table->timestamps();
+
+            // Add uniuqe constraints
+            $table->unique(['start_time', 'room_id', 'day', 'semester_id']);
         });
+
+        
     }
 
     /**

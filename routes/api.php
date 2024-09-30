@@ -10,6 +10,7 @@ use App\Models\Program;
 use App\Models\ClassGroup;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use App\Models\ProgramStream;
 use App\Models\ClassGroupDivision;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Api\V1\CourseUserController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\AcademicYearController;
 use App\Http\Controllers\Api\V1\SemesterUserController;
+use App\Http\Controllers\Api\V1\ProgramStreamController;
 use App\Http\Controllers\Api\V1\SemesterEventController;
 use App\Http\Controllers\Api\V1\CourseScheduleController;
 use App\Http\Controllers\Api\V1\ClassGroupCourseController;
@@ -45,7 +47,7 @@ use App\Http\Controllers\Api\V1\ClassGroupDivisionController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/hello', function (Request $request) {
     return $request->user();
 });
 
@@ -387,6 +389,43 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return response()->json(UserResource::collection($program->students));
     });
 
+// 6.001-PROGRAM STREAM
+    // index
+    Route::get('/program_streams', [ProgramStreamController::class, 'index'])
+    ->middleware('auth:sanctum')
+    ;
+
+    // Store
+    Route::post('/program_streams', [ProgramStreamController::class, 'store'])
+    ->middleware('auth:sanctum')
+    ;
+
+    // Update
+    Route::put('/program_streams/{program_stream}', [ProgramStreamController::class, 'update'])
+    ->middleware('auth:sanctum')
+    ;
+
+    // Delete
+    Route::delete('/program_streams/{program_stream}', [ProgramStreamController::class, 'destroy'])
+    ->middleware('auth:sanctum')
+    ;
+
+    // Show
+    Route::get('/program_streams/{program_stream}', [ProgramStreamController::class, 'show'])
+    ->middleware('auth:sanctum')
+    ;
+
+    // -- Methods
+    // Get Users of the program stream
+    Route::middleware('auth:sanctum')->get('/program_streams/{program_stream}/users', function (Request $request, ProgramStream $program_stream) {
+        return response()->json($program_stream->users());
+    });
+
+    // ClassGroups of the program stream
+    Route::middleware('auth:sanctum')->get('/program_streams/{program_stream}/class_groups', function (Request $request, ProgramStream $program_stream) {
+        return response()->json($program_stream->class_groups);
+    });
+
 // 6.01-ROOM
     // Index
     Route::get('/rooms', [RoomController::class, 'index'])
@@ -495,11 +534,28 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return response()->json($classgroup->divisions);
     });
 
+
     // Methods
     // Get college of a specific classgroup
     Route::middleware('auth:sanctum')->get('/classgroups/{classgroup}/college', function (Request $request, ClassGroup $classgroup) {
         return response()->json($classgroup->college());
     });
+
+    // Get regular classgroups
+    Route::middleware('auth:sanctum')->get('/classgroups-regular', function (Request $request) {
+        return response()->json(ClassGroup::regular_classgroups());
+    });
+
+    // Get idl classgroups
+    Route::middleware('auth:sanctum')->get('/classgroups-idl', function (Request $request) {
+        return response()->json(ClassGroup::idl_classgroups());
+    });
+
+    // Get parallel classgroups
+    Route::middleware('auth:sanctum')->get('/classgroups-parallel', function (Request $request) {
+        return response()->json(ClassGroup::parallel_classgroups());
+    });
+
 
 // 7.1-CLASSGROUPDIVISION
     //Index
@@ -583,6 +639,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     // Get roles of the user
     Route::middleware('auth:sanctum')->get('/users/{user}/role', function (Request $request, User $user) {
         return response()->json($user->role);
+    });
+
+    // Get regular users
+    Route::middleware('auth:sanctum')->get('/users-regular', function (Request $request) {
+        return response()->json(User::regular_students());
+    });
+
+    // Get idl users
+    Route::middleware('auth:sanctum')->get('/users-idl', function (Request $request) {
+        return response()->json(User::idl_students());
+    });
+
+    // Get parallel Students
+    Route::middleware('auth:sanctum')->get('/users-parallel', function (Request $request) {
+        return response()->json(User::parallel_students());
     });
 
 // 9-ROLE

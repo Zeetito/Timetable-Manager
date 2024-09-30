@@ -37,7 +37,7 @@ class User extends Authenticatable
         'identity_number',
         'index_number',
         'is_staff',
-        'program_id',
+        // 'program_id',
         'class_group_id', 
         'email',
     ];
@@ -55,7 +55,8 @@ class User extends Authenticatable
     // Appended attributes
     protected $appends = [
         'semester_id',
-        'class_name'
+        'stream',
+        // 'class_name'
     ];
 
 
@@ -88,6 +89,12 @@ class User extends Authenticatable
         public function getSemesterIdAttribute()
         {
             return $this->user_semester()->id;
+        }
+
+        // Get stream Attribute
+        public function getStreamAttribute()
+        {
+            return $this->class_group? $this->class_group->program_stream->type: null;
         }
 
         // Get registeredCoursesAttribute
@@ -147,13 +154,18 @@ class User extends Authenticatable
 
 
         // Program
-        public function program()
+        public function getProgramAttribute()
         {
-            return $this->belongsTo(Program::class);
+            return $this->class_group->program;
         }
 
         // ClassGroup
         public function class_group()
+        {
+            return $this->belongsTo(ClassGroup::class, 'class_group_id');
+        }
+        // ClassGroup
+        public function classGroup()
         {
             return $this->belongsTo(ClassGroup::class);
         }
@@ -249,9 +261,28 @@ class User extends Authenticatable
             return self::where('is_staff',0);
         }
 
-        // Get all Idl Students
-        public static function idl_students(){
-            return self::whereIn('class_group_id',ClassGroup::idl_class_groups()->pluck('id'))->get();
+        // Get Regular Students
+        public static function regular_students(){
+            return User::students()->get()->filter(function ($user) {
+                return $user->stream == 'regular';
+            });
         }
+
+        public static function idl_students(){
+            return User::students()->get()->filter(function ($user) {
+                return $user->stream == 'idl';
+            });
+        }
+
+        public static function parallel_students(){
+            return User::students()->get()->filter(function ($user) {
+                return $user->stream == 'parallel';
+            });
+        }
+
+        // Get all Idl Students
+        // public static function idl_students(){
+        //     return self::whereIn('class_group_id',ClassGroup::idl_class_groups()->pluck('id'))->get();
+        // }
     
 }

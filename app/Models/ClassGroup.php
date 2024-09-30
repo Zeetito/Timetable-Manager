@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Program;
+use App\Models\ProgramStream;
 use App\Models\ClassGroupCourse;
 use App\Models\ClassGroupDivision;
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +17,9 @@ class ClassGroup extends Model
     use HasFactory;
 
     protected $fillable = [
-        'program_id',
+        'program_stream_id',
         'year',
-        // 'is_divided',
+        'is_divided',
         'start_year',
         'end_year',
     ];
@@ -46,10 +47,23 @@ class ClassGroup extends Model
         return $courses;
     }
 
-    // RELATIONSHIPS
-    public function program()
+
+    // get stream attribute
+    public function getStreamAttribute()
     {
-        return $this->belongsTo(Program::class);
+        return $this->program_stream->type;
+    }
+
+    // RELATIONSHIPS
+
+    public function program_stream()
+    {
+        return $this->belongsTo(ProgramStream::class);
+    }
+
+    public function getProgramAttribute()
+    {
+        return $this->program_stream->program;
     }
 
     // get college
@@ -71,7 +85,6 @@ class ClassGroup extends Model
         return $this->belongsToMany(Course::class, ClassGroupCourse::class);
     }
 
-
     // PUBLIC STATIC FUNCTION
     // Get all postGraduate classgroups
     public static function pg_classgroups(){
@@ -83,9 +96,30 @@ class ClassGroup extends Model
         return self::whereIn('program_id',Program::ug()->pluck('id'))->get();
     }
 
-    // idl ClassGroups
-    public static function idl_class_groups(){
-        return self::whereIn('program_id',Program::idl_programs()->pluck('id'))->get();
+    // Get all regular ClassGroups
+    public static function regular_classgroups(){
+        return ClassGroup::all()->filter(function ($classgroup) {
+            return $classgroup->stream == 'regular';
+        })->values();
     }
+
+    // Get all idl ClassGroups
+    public static function idl_classgroups(){
+        return ClassGroup::all()->filter(function ($classgroup) {
+            return $classgroup->stream == 'idl';
+        })->values();
+    }
+
+    // Get all parallel ClassGroups
+    public static function parallel_classgroups(){
+        return ClassGroup::all()->filter(function ($classgroup) {
+            return $classgroup->stream == 'parallel';
+        })->values();
+    }
+
+    // // idl ClassGroups
+    // public static function idl_class_groups(){
+    //     return self::whereIn('program_id',Program::idl_programs()->pluck('id'))->get();
+    // }
 
 }

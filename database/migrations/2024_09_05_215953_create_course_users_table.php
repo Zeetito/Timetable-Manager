@@ -22,8 +22,11 @@ return new class extends Migration
                     ->constrained()
                     ->onUpdate('cascade')
                     ->onDelete('cascade');
-
-            $table->double('score', 5, 2)->nullable();
+            //assessment and mid-sem
+            $table->double('midsem_score', 5, 2)->nullable();
+            $table->double('assessment_score', 5, 2)->nullable();
+            $table->double('exam_score', 5, 2)->nullable();
+            $table->double('total_score', 5, 2)->nullable();
 
             $table->foreignId('semester_id')
                     ->constrained()

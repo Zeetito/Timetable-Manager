@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->nullable();
+
             $table->foreignId('department_id')->nullable()
                     ->constrained()
                     ->onUpdate('cascade')
                     ->onDelete('cascade');
+                    
             $table->string('floor')->nullable();
             $table->string('type')->nullable();
             $table->integer('exams_cap')->nullable();

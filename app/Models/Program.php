@@ -8,6 +8,7 @@ use App\Models\Faculty;
 use App\Models\Program;
 use App\Models\ClassGroup;
 use App\Models\Department;
+use App\Models\ProgramStream;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -17,11 +18,11 @@ class Program extends Model
 
     protected $fillable = [
         'name',
-        'college_id',
-        'faculty_id',
+        // 'college_id',
+        // 'faculty_id',
         'department_id',
-        'type',
-        'span',
+        // 'type',
+        // 'span',
     ];
 
     // RELATIONSHIPS
@@ -47,10 +48,10 @@ class Program extends Model
 
     // Users
 
-    public function students()
-    {
-        return $this->hasMany(User::class);
-    }
+    // public function students()
+    // {
+    //     return $this->hasManyThrough(User::class,ProgramStream::class);
+    // }
 
 
 

@@ -38,7 +38,7 @@ class CourseSchedule extends Model
         return (new CourseScheduleResource($this))->toJson($options);
     }
 
-
+    // Course
     public function course()
     {
         return $this->belongsTo(Course::class);

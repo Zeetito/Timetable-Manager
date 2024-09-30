@@ -12,7 +12,10 @@ Eg:
 - id: 1
 - user_id: 2
 - course_id: 454
-- score: null
+- midsem_score: null
+- assessment_score: null
+- exam_score: null
+- total_score: null
 - semester_id: 6
 - timestamps: 
 

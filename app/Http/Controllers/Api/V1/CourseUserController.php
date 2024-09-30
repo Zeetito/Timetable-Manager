@@ -21,7 +21,10 @@ class CourseUserController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
             'course_id' => 'required|integer|exists:courses,id',
-            'score' => 'nullable|numeric|min:0|max:100',
+            'midsem_score' => 'nullable|numeric|min:0|max:100',
+            'assessment_score' => 'nullable|numeric|min:0|max:100',
+            'exam_score' => 'nullable|numeric|min:0|max:100',
+            'total_score' => 'nullable|numeric|min:0|max:100',
             'semester_id' => 'required|integer|exists:semesters,id',
         ]);
 
@@ -55,7 +58,10 @@ class CourseUserController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
             'course_id' => 'required|integer|exists:courses,id',
-            'score' => 'nullable|numeric|min:0|max:100',
+            'midsem_score' => 'nullable|numeric|min:0|max:100',
+            'assessment_score' => 'nullable|numeric|min:0|max:100',
+            'exam_score' => 'nullable|numeric|min:0|max:100',
+            'total_score' => 'nullable|numeric|min:0|max:100',
             'semester_id' => 'required|integer|exists:semesters,id',
         ]);
 

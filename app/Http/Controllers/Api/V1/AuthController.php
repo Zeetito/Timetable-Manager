@@ -22,6 +22,7 @@ class AuthController extends Controller
             // Get the authenticated user
             $user = Auth::user();
 
+
             // Create a new personal access token for the user
             $token = $user->createToken('authToken')->plainTextToken;
 

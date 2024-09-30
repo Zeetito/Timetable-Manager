@@ -1,21 +1,19 @@
 ### Model Structure
 
 name
-college_id
-faculty_id
+
 department_id
-type
-span
+
 timestamps
 
 Eg:
 - id: 1
 - name: BSc.Computer Science
-- college_id: 4
+<!-- - college_id: 4 -->
 - department_id: 2
-- faculty_id: null
-- type: ug (UnderGraduate)
-- span: 4 (years)
+<!-- - faculty_id: null -->
+<!-- - type: ug (UnderGraduate) -->
+<!-- - span: 4 (years) -->
 - timestamps ()
 
 
@@ -25,11 +23,11 @@ Eg:
 ### Database Structure
 - id 
 - name [string]
-- college_id [foreignId]
-- faculty_id [foreignId]->nullable()
+<!-- - college_id [foreignId]
+- faculty_id [foreignId]->nullable() -->
 - department_id [foreignId]
-- type [string]
-- span [integer]
+<!-- - type [string]
+- span [integer] -->
 - timestamps [timestamps]
 
 ### RELATIONSHIPS
