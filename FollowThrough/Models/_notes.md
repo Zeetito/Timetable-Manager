@@ -28,6 +28,8 @@
 ## CourseSchedule Class
     - Duration is in nearest whole number. factor for halves.
 
+    - Factor: schedules could be specified as lab only, auditorium only or as alternating weekly or 2 weeks such that, this week lab, the next not... etc. 
+
 
     <!-- ----------------- -->
     The new ProgramStream eyi affclassskects Users. query regural user
@@ -35,3 +37,4 @@
     Check StreamStatus of user
 
     Got To: Regular Users
+

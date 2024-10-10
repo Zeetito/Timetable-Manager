@@ -11,6 +11,7 @@ use App\Models\Semester;
 use App\Models\ClassGroup;
 use App\Models\CourseUser;
 use App\Models\SemesterUser;
+use App\Models\CourseSchedule;
 use Laravel\Sanctum\HasApiTokens;
 use App\Http\Resources\UserResource;
 use Illuminate\Notifications\Notifiable;
@@ -100,13 +101,13 @@ class User extends Authenticatable
         // Get registeredCoursesAttribute
         public function getRegisteredCoursesAttribute()
         {
-            return $this->registered_courses();
+            return $this->registered_courses_forSem();
         }
 
         // Get registered Credit hours
         public function getRegisteredCreditHoursAttribute()
         {
-            return $this->registered_courses()->sum('credit_hour');
+            return $this->registered_courses_forSem()->sum('credit_hour');
         }
 
         // Get department attribute
@@ -156,7 +157,7 @@ class User extends Authenticatable
         // Program
         public function getProgramAttribute()
         {
-            return $this->class_group->program;
+            return $this->class_group ? $this->class_group->program : null;
         }
 
         // ClassGroup
@@ -209,7 +210,7 @@ class User extends Authenticatable
 
         // FUNCTIONS
          // Get User Registered courses Courses
-         public function registered_courses(){
+         public function registered_courses_forSem(){
             return Course::whereIn('id', CourseUser::where('user_id', $this->id)->pluck('course_id'))->get();
         }
 
@@ -222,6 +223,9 @@ class User extends Authenticatable
                 return "None";
             }
 
+            if(!$this->program){
+                return null;
+            }
             // Split the text into words
             $words = explode(' ', $this->program->name);
                 
@@ -278,6 +282,11 @@ class User extends Authenticatable
             return User::students()->get()->filter(function ($user) {
                 return $user->stream == 'parallel';
             });
+        }
+
+        // CourseSchedule instances
+        public function course_schedules(){
+            return CourseSchedule::whereBelongsTo($this->registered_courses)->get();
         }
 
         // Get all Idl Students

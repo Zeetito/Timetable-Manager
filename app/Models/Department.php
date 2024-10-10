@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Room;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\College;
@@ -41,6 +42,11 @@ class Department extends Model
     public function courses()
     {
         return $this->hasMany(Course::class);
+    }
+
+    // Get classrooms
+    public function rooms(){
+        return $this->hasMany(Room::class);
     }
 
 

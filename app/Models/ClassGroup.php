@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Program;
 use App\Models\ProgramStream;
+use App\Models\CourseSchedule;
 use App\Models\ClassGroupCourse;
 use App\Models\ClassGroupDivision;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,13 @@ class ClassGroup extends Model
         return $courses;
     }
 
+    // Get courseScheuldes attribute
+    public function getCourseSchedulesAttribute()
+    {
+        return CourseSchedule::whereBelongsTo($this->courses)->get();
+        
+    }
+
 
     // get stream attribute
     public function getStreamAttribute()
@@ -54,8 +62,18 @@ class ClassGroup extends Model
         return $this->program_stream->type;
     }
 
+
+    // Get Student Count Attribute
+    public function getStudentsCountAttribute()
+    {
+        return $this->users()->count();
+    }
+
+
+
     // RELATIONSHIPS
 
+    // ProgramStream
     public function program_stream()
     {
         return $this->belongsTo(ProgramStream::class);

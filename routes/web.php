@@ -1,6 +1,11 @@
 <?php
 
 use App\Models\User;
+use App\Models\Course;
+use App\Models\ClassGroup;
+use App\Models\CourseUser;
+use App\Models\Department;
+use App\Models\CourseSchedule;
 use App\Jobs\UserNotificationJob;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\UserNotification;
@@ -25,24 +30,8 @@ Route::get('/baba', function () {
 })->name('baba');
 
 Route::get('/hello', function () {
-    $user = User::find(93502);
-    return $user->notifications->first()->markAsRead();
-    $message = "Hello Second Testing Job";
-    $url = route('baba');
-    UserNotificationJob::dispatch($user, $message, $url);
-    return "vhim";
-    // return App\Models\User::find(1)->semester_id;
-    // return App\Models\User::students()->get()->take(20);
-    // return App\Models\User::paginate(50);
-    
-    return App\Models\Program::find(2)->students;
-    return App\Models\User::all();
-
-
-    // return App\Models\User::find(20)->course();
-    return App\Models\ClassGroup::regular_classgroups();
-    return App\Models\ProgramStream::find(1)->users();
-    return App\Models\ClassGroupCourse::all();
-
-
+    ini_set('max_execution_time', '120');
+    return Course::courses_to_be_scheduled_for_stream('regular')->pluck('id');
+    return Course::find(3)->isScheduledForStream('regular');
+    return CourseSchedule::course_schedules_for_stream('regular');
 });

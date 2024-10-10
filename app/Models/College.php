@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Room;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Faculty;
@@ -38,6 +39,11 @@ class College extends Model
 
     public function users(){
         return User::whereBelongsTo($this->programs)->get();
+    }
+
+    // Get rooms
+    public function rooms(){
+        return Room::whereBelongsTo($this->departments)->get();
     }
 
     // Get Students

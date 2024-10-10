@@ -490,6 +490,16 @@ Route::middleware('auth:sanctum')->get('/hello', function (Request $request) {
         return response()->json($course->department);
     });
 
+    // Students
+    Route::middleware('auth:sanctum')->get('/courses/{course}/students', function (Request $request, Course $course) {
+        return response()->json($course->students);
+    });
+
+    // ClassGroups
+    Route::middleware('auth:sanctum')->get('/courses/{course}/class_groups', function (Request $request, Course $course) {
+        return response()->json($course->class_groups());
+    });
+
 // 7-CLASSGROUP
     // Show
     Route::get('/classgroups/{classgroup}', [ClassGroupController::class, 'show'])

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('course_id');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
-            $table->double('duration',4,2)->nullable();
+            $table->string('stream')->nullable();
             $table->foreignId('room_id')->nullable();
-            $table->integer('day')->nullable();
+            $table->string('day')->nullable();
             $table->foreignId('semester_id');
             $table->timestamps();
 

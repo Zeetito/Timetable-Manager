@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Course;
+use App\Models\CourseSchedule;
 use App\Models\Scopes\SemesterScope;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Resources\CourseScheduleResource;
@@ -18,7 +20,7 @@ class CourseSchedule extends Model
         'course_id',
         'start_time',
         'end_time',
-        'duration',
+        'stream',
         'room_id',
         'day',
         'semester_id',
@@ -38,10 +40,46 @@ class CourseSchedule extends Model
         return (new CourseScheduleResource($this))->toJson($options);
     }
 
+    // ATTTRIBUTES
+    // Get the duration attribute
+    public function getDurationAttribute()
+    {
+        $timeA = $this->start_time;
+        $timeB = $this->end_time;
+
+        // Convert the strings to Carbon instances
+        $carbonA = Carbon::createFromFormat('H:i:s', $timeA);
+        $carbonB = Carbon::createFromFormat('H:i:s', $timeB);
+
+        // Get the difference in hours and minutes
+        $hours = $carbonA->diffInHours($carbonB);
+        $minutes = $carbonA->diffInMinutes($carbonB) % 60;
+
+        // Format the result
+        $result = $hours . ' Hour' . ($hours > 1 ? 's' : '') . ' and ' . $minutes . ' Minute' . ($minutes > 1 ? 's' : '');
+
+        return $result;
+    }
+
+    // RELATIONSSHIPS
+
     // Course
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    // Classgroup
+    public function class_groups(String $stream){
+        return ClassGroup::whereIn('id',$this->course->class_groups_of_stream($stream)->pluck('id'))->get();
+    }
+
+
+
+    // STATIC FUNCTION
+    // Course Schedule instances for Stream
+    public static function course_schedules_for_stream(String $stream){
+        return CourseSchedule::where('stream',$stream)->get();
     }
     
 }
