@@ -9,6 +9,7 @@ use App\Models\CourseSchedule;
 use App\Jobs\UserNotificationJob;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\UserNotification;
+use App\Http\Controllers\Api\V1\CourseScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,10 +27,11 @@ Route::get('/', function () {
 });
 
 Route::get('/baba', function () {
-    return 'welcome to Baba route';
+    return CourseScheduleController::dispatchCourseScheduleJobForStream('regular');
 })->name('baba');
 
 Route::get('/hello', function () {
+    return ClassGroup::find(2)->course_schedules;
     ini_set('max_execution_time', '120');
     return Course::courses_to_be_scheduled_for_stream('regular')->pluck('id');
     return Course::find(3)->isScheduledForStream('regular');

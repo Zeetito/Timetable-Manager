@@ -101,26 +101,26 @@ class Course extends Model
     }
 
     // Get Regular ClassGroups
-    // public function class_groups_of_stream($string){
+    public function class_groups_of_stream($string){
 
-    //     $allowedStrings = ['idl', 'regular', 'parallel'];
+        $allowedStrings = ['idl', 'regular', 'parallel'];
 
-    //     // Check if the passed string is one of the allowed values
-    //     if (!in_array($string, $allowedStrings)) {
-    //         // Throw an exception or return an error message if the string is not allowed
-    //         throw new InvalidArgumentException("Invalid stream type. Allowed types are: " . implode(", ", $allowedStrings));
-    //     }
+        // Check if the passed string is one of the allowed values
+        if (!in_array($string, $allowedStrings)) {
+            // Throw an exception or return an error message if the string is not allowed
+            throw new InvalidArgumentException("Invalid stream type. Allowed types are: " . implode(", ", $allowedStrings));
+        }
 
-    //     $class_groups = $this->class_groups();
-    //     $target = collect();
-    //     foreach($class_groups as $group){
-    //         if($group->stream == $string){
-    //             $target->push($group);
-    //         }
+        $class_groups = $this->class_groups();
+        $target = collect();
+        foreach($class_groups as $group){
+            if($group->stream == $string){
+                $target->push($group);
+            }
 
-    //     }
-    //     return $target;
-    // }
+        }
+        return $target;
+    }
 
 
 
