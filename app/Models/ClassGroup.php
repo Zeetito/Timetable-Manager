@@ -52,7 +52,6 @@ class ClassGroup extends Model
     public function getCourseSchedulesAttribute()
     {
         return CourseSchedule::whereBelongsTo($this->courses)->get();
-        
     }
 
 

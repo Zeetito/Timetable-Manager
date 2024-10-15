@@ -38,3 +38,4 @@ class CourseScheduleJob implements ShouldQueue
         $courseScheduleController->scheduleCoursesForStream($this->courseIds, $this->stream);
     }
 }
+

@@ -38,6 +38,13 @@
 
     Got To: Regular Users
 
+    Issues...
+    - Both Blocks of a 3 or 4 credit hour couse are scheduled for the same day.
+    - Factor couses with divisions.
+    - factor day weight
+    - maybe, max courses per day
+    
+
 <!-- TODO -->
 <!-- analyse the logic proceed from there -->
 

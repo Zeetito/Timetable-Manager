@@ -31,7 +31,8 @@ Route::get('/baba', function () {
 })->name('baba');
 
 Route::get('/hello', function () {
-    return ClassGroup::find(2)->course_schedules;
+    // return ClassGroup::find(18)->course_schedules;
+    return CourseSchedule::all();
     ini_set('max_execution_time', '120');
     return Course::courses_to_be_scheduled_for_stream('regular')->pluck('id');
     return Course::find(3)->isScheduledForStream('regular');

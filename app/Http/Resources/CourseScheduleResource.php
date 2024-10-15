@@ -17,6 +17,7 @@ class CourseScheduleResource extends JsonResource
         return [
             'id' => $this->id,
             'course_id' => $this->course_id,
+            'course_credit_hour' => $this->course->credit_hour,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'stream' => $this->stream,

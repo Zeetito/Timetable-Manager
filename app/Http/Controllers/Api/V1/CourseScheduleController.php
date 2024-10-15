@@ -57,11 +57,6 @@ class CourseScheduleController extends Controller
          // Calculate the difference between start_time and end_time
         $startTime = Carbon::createFromFormat('H:i', $validated['start_time']);
         $endTime = Carbon::createFromFormat('H:i', $validated['end_time']);
-        // Run to the nearest whole number
-        $validated['duration'] = round($startTime->diffInMinutes($endTime) / 60, 1);
-
-        // Add to the validated array
-        $validated['duration'] = $duration;
 
         try {
             // Create a new CourseSchedule
@@ -149,7 +144,7 @@ class CourseScheduleController extends Controller
 
             // Priority 1: Get classrooms in the department
             $availableClassrooms = $course->department->rooms()
-                ->where('max_cap', '>=', $totalStudents)
+                ->where('reg_cap', '>=', $totalStudents)
                 ->get();
 
             // Try finding a room in the department first
@@ -157,9 +152,9 @@ class CourseScheduleController extends Controller
 
             // Priority 2: If no room is found, expand to all classrooms in the college
             if (!$isRoomFound) {
-                $availableClassrooms = $course->college->rooms()
+                $availableClassrooms = $course->college()->rooms()
                                         ->where('max_cap', '>=', $totalStudents)
-                                        ->get();
+                                        ;
 
                 $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string); // Changed to $this->findAvailableRoom()
             }
@@ -185,38 +180,52 @@ class CourseScheduleController extends Controller
                             $endTime = self::END_TIMES[$j];
 
                             // Calculate the duration between the start and end times
-                            $slotDuration = Carbon::parse($startTime)->diffInMinutes(Carbon::parse($endTime));
+                            $slotDuration = Carbon::parse($startTime)->diffInMinutes(Carbon::parse($endTime)) + 5;
+
+                            // Adjust for the case where remaining duration is greater or equal to max duration
+                            if ($remainingDuration >= $maxDurationPerSlot  && $slotDuration < $maxDurationPerSlot) {
+                                // move to the next end time
+                                continue;
+                            }
+
+                            $startTimeCarbon = Carbon::parse($startTime);
+                            $endTimeCarbon = Carbon::parse($endTime);
 
                             // Check if the current slot can accommodate part of the required duration
-                            if ($slotDuration > 0 && $slotDuration <= $maxDurationPerSlot && $slotDuration <= $remainingDuration) {
-                                $isRoomAvailable = $this->checkRoomAvailability($room, $day, $startTime, $endTime); // Changed to $this->checkRoomAvailability()
-                                $isClassGroupAvailable = $this->checkClassGroupAvailability($classGroups, $day, $startTime, $endTime); // Changed to $this->checkClassGroupAvailability()
+                            if ($startTimeCarbon->lt($endTimeCarbon) &&  $slotDuration > 0 && $slotDuration <= $maxDurationPerSlot && $slotDuration <= $remainingDuration) {
 
-                                $isStaffAvailable = true;
-                                if ($staff) {
-                                    $isStaffAvailable = $this->checkStaffAvailability($staff, $day, $startTime, $endTime); // Changed to $this->checkStaffAvailability()
-                                }
+                                    // Changed to $this->checkRoomAvailability()
+                                    $isRoomAvailable = $this->checkRoomAvailability($room, $day, $startTime, $endTime); 
 
-                                if ($isRoomAvailable && $isClassGroupAvailable && $isStaffAvailable) {
-                                    // Assign the schedule for this block duration
-                                    CourseSchedule::create([
-                                        'course_id' => $course->id,
-                                        'start_time' => $startTime,
-                                        'end_time' => $endTime,
-                                        'stream' => $string,
-                                        'room_id' => $room->id,
-                                        'day' => $day,
-                                        'semester_id' => Semester::getActiveSemester()->id
-                                    ]);
+                                    // Changed to $this->checkClassGroupAvailability()
+                                    $isClassGroupAvailable = $this->checkClassGroupAvailability($classGroups, $day, $startTime, $endTime); 
 
-                                    // Subtract the block duration from the remaining duration
-                                    $remainingDuration -= $slotDuration;
-
-                                    // If all required hours are scheduled, exit the loop
-                                    if ($remainingDuration <= 0) {
-                                        return true; // Return true if all blocks are scheduled
+                                    // Changed to $this->checkStaffAvailability()
+                                    $isStaffAvailable = true;
+                                    if ($staff) {
+                                        $isStaffAvailable = $this->checkStaffAvailability($staff, $day, $startTime, $endTime);
                                     }
-                                }
+
+                                    if ($isRoomAvailable && $isClassGroupAvailable && $isStaffAvailable) {
+                                        // Assign the schedule for this block duration
+                                        CourseSchedule::create([
+                                            'course_id' => $course->id,
+                                            'start_time' => $startTime,
+                                            'end_time' => $endTime,
+                                            'stream' => $string,
+                                            'room_id' => $room->id,
+                                            'day' => $day,
+                                            'semester_id' => Semester::getActiveSemester()->id
+                                        ]);
+
+                                        // Subtract the block duration from the remaining duration
+                                        $remainingDuration -= $slotDuration;
+
+                                        // If all required hours are scheduled, exit the loop
+                                        if ($remainingDuration <= 0) {
+                                            return true; // Return true if all blocks are scheduled
+                                        }
+                                    }
                             }
                         }
                     }
@@ -228,71 +237,80 @@ class CourseScheduleController extends Controller
         // Check Room Availability
         protected function checkRoomAvailability($room, $day, $startTime, $endTime)
         {
-            // Query the CourseSchedule table to see if the room is already booked for the given day and time
+            // Query the CourseSchedule table directly for this room and day to check for conflicts
             $conflict = CourseSchedule::where('room_id', $room->id)
                 ->where('day', $day)
                 ->where(function ($query) use ($startTime, $endTime) {
+                    // Check for overlapping time slots
                     $query->whereBetween('start_time', [$startTime, $endTime])
-                        ->orWhereBetween('end_time', [$startTime, $endTime])
-                        ->orWhere(function ($q) use ($startTime, $endTime) {
-                            // This checks if the schedule overlaps the entire period
-                            $q->where('start_time', '<=', $startTime)
+                          ->orWhereBetween('end_time', [$startTime, $endTime])
+                          ->orWhere(function ($q) use ($startTime, $endTime) {
+                              // Handle cases where a schedule overlaps the entire period
+                              $q->where('start_time', '<=', $startTime)
                                 ->where('end_time', '>=', $endTime);
-                        });
-                })->exists();
-
+                          });
+                })->exists(); // Using exists() for efficiency
+        
             return !$conflict; // Return true if no conflict was found, meaning the room is available
         }
 
         // Check Classgroups Availability
         protected function checkClassGroupAvailability($classGroups, $day, $startTime, $endTime)
         {
-            // Loop through each class group and check if any has a conflicting schedule
+            // Collect all course IDs related to the class groups
+            $courseIds = [];
+        
             foreach ($classGroups as $classGroup) {
-                $conflict = $classGroup->course_schedules
-                    ->where('day', $day)
-                    ->where(function ($query) use ($startTime, $endTime) {
-                        $query->whereBetween('start_time', [$startTime, $endTime])
-                            ->orWhereBetween('end_time', [$startTime, $endTime])
-                            ->orWhere(function ($q) use ($startTime, $endTime) {
-                                // Check if the class group has another course fully overlapping this period
-                                $q->where('start_time', '<=', $startTime)
-                                    ->where('end_time', '>=', $endTime);
-                            });
-                    })->count() > 0;
-
-                if ($conflict) {
-                    return false; // If any conflict is found for any class group, return false
-                }
+                // Assuming $classGroup->courses() is the relationship to the courses
+                $courseIds = array_merge($courseIds, $classGroup->courses->pluck('id')->toArray());
             }
-
-            return true; // No conflicts found, the class group is available
+        
+            // Now check for any conflict in course schedules for any of these courses on the given day and time
+            $conflict = CourseSchedule::whereIn('course_id', $courseIds)
+                ->where('day', $day)
+                ->where(function ($query) use ($startTime, $endTime) {
+                    // Check for overlapping time slots
+                    $query->whereBetween('start_time', [$startTime, $endTime])
+                          ->orWhereBetween('end_time', [$startTime, $endTime])
+                          ->orWhere(function ($q) use ($startTime, $endTime) {
+                              // Check if the schedule overlaps the entire period
+                              $q->where('start_time', '<=', $startTime)
+                                ->where('end_time', '>=', $endTime);
+                          });
+                })->exists(); // Use exists() for efficiency
+        
+            return !$conflict; // Return true if no conflict was found, meaning the class group is available
         }
+        
 
         // Check Staff Availability
         protected function checkStaffAvailability($staff, $day, $startTime, $endTime)
         {
-            // Query the CourseSchedule table to see if the staff is already assigned to another course at the same time
-
-            foreach($staff as $staff){
-
-                $conflict = $staff->course_schedules()
-                    ->where('day', $day)
-                    ->where(function ($query) use ($startTime, $endTime) {
-                        $query->whereBetween('start_time', [$startTime, $endTime])
-                            ->orWhereBetween('end_time', [$startTime, $endTime])
-                            ->orWhere(function ($q) use ($startTime, $endTime) {
-                                // Check if the staff member has another course fully overlapping this period
-                                $q->where('start_time', '<=', $startTime)
-                                    ->where('end_time', '>=', $endTime);
-                            });
-                    })->count() > 0 ;
-    
-                return !$conflict; // Return true if no conflict is found, meaning the staff is available
-
+            // Collect all course IDs related to the staff members
+            $courseIds = [];
+        
+            foreach ($staff as $staffMember) {
+                // Assuming $staffMember->courses() is the relationship to the courses
+                $courseIds = array_merge($courseIds, $staffMember->registered_courses->pluck('id')->toArray());
             }
-
+        
+            // Check for any conflict in course schedules for any of these courses on the given day and time
+            $conflict = CourseSchedule::whereIn('course_id', $courseIds)
+                ->where('day', $day)
+                ->where(function ($query) use ($startTime, $endTime) {
+                    // Check for overlapping time slots
+                    $query->whereBetween('start_time', [$startTime, $endTime])
+                          ->orWhereBetween('end_time', [$startTime, $endTime])
+                          ->orWhere(function ($q) use ($startTime, $endTime) {
+                              // Check if the schedule overlaps the entire period
+                              $q->where('start_time', '<=', $startTime)
+                                ->where('end_time', '>=', $endTime);
+                          });
+                })->exists(); // Use exists() for efficiency
+        
+            return !$conflict; // Return true if no conflict was found, meaning the staff is available
         }
+        
 
 
     // END HELPER FUNCTIONS    
@@ -313,9 +331,9 @@ class CourseScheduleController extends Controller
             $cache_courses_id = Cache::get($key, null);
         }
 
-        $first_ten_courses = array_slice($cache_courses_id,10);
+        // $first_ten_courses = array_slice($cache_courses_id,10);
 
-        // while(count($cache_courses_id) > 0){
+        while(count($cache_courses_id) > 0){
             // Get Only the first 10 courses to be used for the Job
             $first_ten_courses = array_slice($cache_courses_id,0,10);
             
@@ -330,7 +348,7 @@ class CourseScheduleController extends Controller
 
             }
 
-        // }
+        }
 
         echo"done";
     }

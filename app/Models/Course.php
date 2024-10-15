@@ -60,6 +60,12 @@ class Course extends Model
         return $this->belongsTo(Department::class);
     }
 
+    // College
+    public function college()
+    {
+        return $this->department->college;
+    }
+
     // COURSE SCHEDULE
     // Index scoped by semester
     public function course_schedules()
