@@ -152,6 +152,12 @@ class Course extends Model
         return in_array($string,$this->scheduled_streams);
     }
 
+    // Check if course is fully scheduled for a Stream
+    public function isFullyScheduledForStream($string)
+    {
+        return  $this->course_schedules_for_stream($string)->sum('approx_duration') == $this->credit_hour;
+    }
+
 
     // STATIC FUNCTIONS
     // Get all courses yet to be scheduled for a particular stream
@@ -164,6 +170,26 @@ class Course extends Model
         });
 
         return $courses;
+    }
+
+
+    // Get Treshhold for course allocation for a stream
+    public static function allocation_treshold_for_stream(String $string){
+        $days_count = 0;
+        if($string == 'regular'){
+            $days_count = 4;
+        }//else if($string == 'parallel'){
+            // $days_count == 2;
+        // }
+
+        return ceil(Course::all()->count() / $days_count);
+
+    }
+
+    // Get the remaining duration to be scheduled for a course
+    public function remaining_duration_for_stream(String $string){
+
+        return $this->credit_hour - $this->course_schedules_for_stream($string)->sum('approx_duration');
     }
 
 }

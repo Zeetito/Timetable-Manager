@@ -61,6 +61,25 @@ class CourseSchedule extends Model
         return $result;
     }
 
+    // Get ApproxDurationAttribute
+    public function getApproxDurationAttribute()
+    {
+        $timeA = $this->start_time;
+        $timeB = $this->end_time;
+
+        // Convert the strings to Carbon instances
+        $carbonA = Carbon::createFromFormat('H:i:s', $timeA);
+        $carbonB = Carbon::createFromFormat('H:i:s', $timeB);
+
+        // Get the difference in minutes
+        $diffInMinutes = $carbonA->diffInMinutes($carbonB);
+
+        // Convert the difference to hours and round to the nearest hour
+        $diffInHours = round($diffInMinutes / 60);
+
+        return $diffInHours;
+    }
+
     // RELATIONSSHIPS
 
     // Course
@@ -83,3 +102,4 @@ class CourseSchedule extends Model
     }
     
 }
+

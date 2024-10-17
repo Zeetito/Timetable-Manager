@@ -19,6 +19,8 @@ class CourseScheduleController extends Controller
     const START_TIMES = ['8:00:00', '9:00:00', '10:30:00', '13:00:00', '14:00:00', '15:00:00', '16:00:00', '17:00:00', '18:00:00'];
     const END_TIMES = ['8:55:00', '9:55:00', '10:25:00', '12:25:00', '13:55:00', '14:55:00', '15:55:00', '16:55:00', '17:55:00', '18:55:00'];
     const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    // introducing day factor
+    
 
     // Index
     public function index(){
@@ -132,46 +134,110 @@ class CourseScheduleController extends Controller
     }
 
     // Schedule courses for a particular stream
-    public function scheduleCoursesForStream(array $courses_id, String $string)
-    {
-        // NB: Semester is active semester
-        $courses = Course::whereIn('id', $courses_id)->get();
-        foreach($courses as $course){
-
-            $classGroups = $course->class_groups_of_stream($string);
-            $totalStudents = $classGroups->sum('students_count');
-            $staff = $course->staff();
-
-            // Priority 1: Get classrooms in the department
-            $availableClassrooms = $course->department->rooms()
-                ->where('reg_cap', '>=', $totalStudents)
-                ->get();
-
-            // Try finding a room in the department first
-            $isRoomFound = $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string); // Changed to $this->findAvailableRoom()
-
-            // Priority 2: If no room is found, expand to all classrooms in the college
-            if (!$isRoomFound) {
-                $availableClassrooms = $course->college()->rooms()
-                                        ->where('max_cap', '>=', $totalStudents)
-                                        ;
-
-                $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string); // Changed to $this->findAvailableRoom()
+        public function scheduleCoursesForStream(array $courses_id, String $string)
+        {
+            // Get the allocation Threshold for the Stream
+            $threshold = Course::allocation_treshold_for_stream($string);
+        
+            // NB: Semester is active semester
+            $courses = Course::whereIn('id', $courses_id)->get();
+            foreach($courses as $course) {
+        
+                // Declare the taken_day variable
+                $taken_day = null;
+        
+                // Check if the course is not fully scheduled
+                if (!$course->isFullyScheduledForStream($string)) {
+        
+                    $attempts = 0;
+                    $maxAttempts = 3; // Limit the number of scheduling attempts
+        
+                    // While the course is not fully scheduled for the stream
+                    while (!$course->isFullyScheduledForStream($string) && $attempts < $maxAttempts) {
+                        $attempts++;
+        
+                        // If course is not fully scheduled, assign the taken day and proceed
+                        $first_part = $course->course_schedules_for_stream($string)->first();
+                        if ($first_part) {
+                            $taken_day = $first_part->day;
+                        }
+        
+                        $classGroups = $course->class_groups_of_stream($string);
+                        $totalStudents = $classGroups->sum('students_count');
+                        $staff = $course->staff();
+        
+                        // Priority 1: Get classrooms in the department
+                        $availableClassrooms = $course->department->rooms()
+                            ->where('reg_cap', '>=', $totalStudents) // Consistent capacity check
+                            ->get();
+        
+                        // Try finding a room in the department first
+                        $isRoomFound = $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day);
+        
+                        // Priority 2: If no room is found, expand to all classrooms in the college
+                        if (!$isRoomFound) {
+                            $availableClassrooms = $course->college()->rooms()
+                                ->where('reg_cap', '>=', $totalStudents) // Consistent capacity check
+                                ; //get() is already on the rooms function
+        
+                            $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day);
+                        }
+        
+                        // Set day taken variable to null after scheduling
+                        $taken_day = null;
+        
+                        // Break if no room found to prevent infinite looping
+                        // if (!$isRoomFound) {
+                        //     Log::warning("Room not found for course {$course->id} on day {$taken_day}");
+                        //     break;
+                        // }
+                    }
+                }
+        
+                // continue;
             }
         }
-    }
+        
 
     // SCHEDULING HELPER FUNCTIONS
 
         // Find Available Room Function
-        protected function findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string)
+        protected function findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day)
         {
             // Calculate the total duration of the course based on credit hours
-            $remainingDuration = $course->credit_hour * 60; // Convert credit hours to minutes
+            $remainingDuration = $course->remaining_duration_for_stream($string) * 60; // Convert credit hours to minutes
             $maxDurationPerSlot = 120; // Maximum 2 hours per slot in minutes
 
-            foreach (self::DAYS as $day) {
+            $days = self::DAYS;
+            // Filter off the taken day and work with the rest
+            $filtered_days = $taken_day !== null ? array_values(array_filter($days, function($day) use ($taken_day) {
+                return $day != $taken_day;
+            })) : $days;
+
+
+            // Introducing Day weights
+            $dayWeights = [
+                'Monday' => 0.5,
+                'Tuesday' => 1,
+                'Wednesday' => 1,
+                'Thursday' => 1,
+                'Friday' => 0.75
+            ];
+
+            foreach ($filtered_days as $day) {
+                
+                // Check if the day has exceeded it's weight
+                $loadFactor = CourseSchedule::where('day', $day)->count() * $dayWeights[$day];
+
+                // Schedule on this day if the load factor is acceptable
+                if ($loadFactor >= $threshold) {
+                    // Skip day
+                    continue;
+                }
+
+                
                 foreach ($availableClassrooms as $room) {
+
                     for ($i = 0; $i < count(self::START_TIMES); $i++) {
                         $startTime = self::START_TIMES[$i];
 
@@ -218,13 +284,13 @@ class CourseScheduleController extends Controller
                                             'semester_id' => Semester::getActiveSemester()->id
                                         ]);
 
-                                        // Subtract the block duration from the remaining duration
-                                        $remainingDuration -= $slotDuration;
+                                        // // Subtract the block duration from the remaining duration
+                                        // $remainingDuration -= $slotDuration;
 
-                                        // If all required hours are scheduled, exit the loop
-                                        if ($remainingDuration <= 0) {
+                                        // // If all required hours are scheduled, exit the loop
+                                        // if ($remainingDuration <= 0) {
                                             return true; // Return true if all blocks are scheduled
-                                        }
+                                        // }
                                     }
                             }
                         }
@@ -333,7 +399,7 @@ class CourseScheduleController extends Controller
 
         // $first_ten_courses = array_slice($cache_courses_id,10);
 
-        while(count($cache_courses_id) > 0){
+        // while(count($cache_courses_id) > 0){
             // Get Only the first 10 courses to be used for the Job
             $first_ten_courses = array_slice($cache_courses_id,0,10);
             
@@ -348,7 +414,7 @@ class CourseScheduleController extends Controller
 
             }
 
-        }
+        // }
 
         echo"done";
     }

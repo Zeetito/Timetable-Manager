@@ -40,9 +40,11 @@
 
     Issues...
     - Both Blocks of a 3 or 4 credit hour couse are scheduled for the same day.
-    - Factor couses with divisions.
-    - factor day weight
     - maybe, max courses per day
+    - factor day weight
+    
+    - the remaining_duration_for_stream function for the course must factor the classgroups/divisions involved as well
+    - Factor couses with divisions.
     
 
 <!-- TODO -->

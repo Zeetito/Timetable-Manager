@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Room;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\ClassGroup;
@@ -31,10 +32,14 @@ Route::get('/baba', function () {
 })->name('baba');
 
 Route::get('/hello', function () {
-    // return ClassGroup::find(18)->course_schedules;
+    // return Course::allocation_treshold_for_stream('regular');
+
     return CourseSchedule::all();
+    return Course::find(7)->isFullyScheduledForStream('regular');
+    // return ClassGroup::find(18)->course_schedules;
     ini_set('max_execution_time', '120');
     return Course::courses_to_be_scheduled_for_stream('regular')->pluck('id');
     return Course::find(3)->isScheduledForStream('regular');
     return CourseSchedule::course_schedules_for_stream('regular');
+
 });
