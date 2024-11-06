@@ -30,7 +30,7 @@ return new class extends Migration
                     ->onUpdate('cascade')
                     ->onDelete('set null');
 
-            // $table->string('type');
+            $table->string('graduate_type')->nullable();
             // $table->integer('span')->nullable();
             $table->timestamps();
         });

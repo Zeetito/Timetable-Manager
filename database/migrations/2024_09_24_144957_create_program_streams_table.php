@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('program_id');
             $table->string('type');
             $table->integer('duration');
-            $table->string('graduate');
+            $table->string('graduate_type');
             $table->timestamps();
         });
     }

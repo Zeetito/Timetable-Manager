@@ -21,7 +21,7 @@ class Program extends Model
         // 'college_id',
         // 'faculty_id',
         'department_id',
-        // 'type',
+        'graduate_type',
         // 'span',
     ];
 
@@ -41,10 +41,14 @@ class Program extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function class_groups()
+
+    // Get related program streams
+    public function program_streams()
     {
-        return $this->hasMany(ClassGroup::class);
+        return $this->hasMany(ProgramStream::class);
     }
+
+
 
     // Users
 
@@ -59,12 +63,12 @@ class Program extends Model
     // PUBLIC STATIC FUNCTIONS
      // Get postGraduate programs
      public static function pg(){
-        return self::where('type','pg');
+        return self::where('graduate_type','pg')->get();
     }
 
     // Get undergraduage programs
     public static function ug(){
-        return self::where('type','ug');
+        return self::where('graduate_type','ug')->get();
     }
 
     // INSTITUTE OF DISTANCE LEARNING

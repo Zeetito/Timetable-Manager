@@ -21,7 +21,7 @@ class CourseSeeder extends Seeder
 
         foreach($departments as $department) {
             // Setting Random number of Courses for each department
-            $courses = rand(16,25);
+            $courses = rand(65,70);
             for($i = 1; $i <= $courses; $i++) {
                 // Creating Random Courses for Each Department
                 $course = new Course;
@@ -45,6 +45,17 @@ class CourseSeeder extends Seeder
 
                 $course->save();
             }
+        }
+
+        $year = 1;
+        foreach (Course::all() as $course) {
+            if($year > 4) {
+                $year = 1;
+            }
+
+            $course->year = $year;
+            $course->save();
+            $year++;
         }
 
     }

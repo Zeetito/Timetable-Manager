@@ -19,6 +19,8 @@ return new class extends Migration
             
             $table->integer('credit_hour')->nullable();
 
+            $table->integer('year')->nullable();
+
             $table->foreignId('department_id')->nullable()
                     ->constrained()
                     ->onUpdate('cascade')

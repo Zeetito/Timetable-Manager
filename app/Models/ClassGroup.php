@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Program;
+use App\Models\ClassGroup;
 use App\Models\ProgramStream;
 use App\Models\CourseSchedule;
 use App\Models\ClassGroupCourse;
@@ -21,6 +22,7 @@ class ClassGroup extends Model
         'program_stream_id',
         'year',
         'is_divided',
+        'current_elective_per_student',
         'start_year',
         'end_year',
     ];
@@ -61,6 +63,20 @@ class ClassGroup extends Model
         return $this->program_stream->type;
     }
 
+    // Get Elective Courses Attribute
+    public function getElectiveCoursesAttribute()
+    {
+        $courses = Course::whereIn('id', ClassGroupCourse::where('class_group_id', $this->id)->where('is_elective',1)->pluck('course_id'))->get();
+        return $courses;
+    }
+
+    // Get Core Courses Attribute
+    public function getCoreCoursesAttribute()
+    {
+        $courses = Course::whereIn('id', ClassGroupCourse::where('class_group_id', $this->id)->where('is_elective',0)->pluck('course_id'))->get();
+        return $courses;
+    }
+
 
     // Get Student Count Attribute
     public function getStudentsCountAttribute()
@@ -68,15 +84,33 @@ class ClassGroup extends Model
         return $this->users()->count();
     }
 
+    // Get department attribute
+    public function getDepartmentAttribute()
+    {
+        return $this->program->department;
+    }
+
+    // Get graduate type attribute
+    public function getGraduateTypeAttribute()
+    {
+        return $this->program->graduate_type;        
+    }
+
 
 
     // RELATIONSHIPS
+    // COURSES
+    // Get all ppssible elective courses
+    public function possibleElectiveCourses(){
+        return Course::all()->diff($this->department->courses);
+    }
 
     // ProgramStream
     public function program_stream()
     {
-        return $this->belongsTo(ProgramStream::class);
+        return $this->belongsTo(ProgramStream::class,'program_stream_id');
     }
+
 
     public function getProgramAttribute()
     {
@@ -105,12 +139,16 @@ class ClassGroup extends Model
     // PUBLIC STATIC FUNCTION
     // Get all postGraduate classgroups
     public static function pg_classgroups(){
-        return self::whereIn('program_id',Program::pg()->pluck('id'))->get();
+        return self::whereHas('program_stream', function ($query) {
+            $query->whereBelongsTo(Program::pg());
+        })->get();
     }
 
     // Get all undergraduage Classgroup
     public static function ug_classgroups(){
-        return self::whereIn('program_id',Program::ug()->pluck('id'))->get();
+        return self::whereHas('program_stream', function ($query) {
+            $query->whereBelongsTo(Program::ug());
+        })->get();
     }
 
     // Get all regular ClassGroups
@@ -134,9 +172,27 @@ class ClassGroup extends Model
         })->values();
     }
 
-    // // idl ClassGroups
-    // public static function idl_class_groups(){
-    //     return self::whereIn('program_id',Program::idl_programs()->pluck('id'))->get();
-    // }
+    // Get all classgroups for a particular stream
+    public static function classgroups_of_stream($string){
+
+        $allowedStrings = ['idl', 'regular', 'parallel'];
+
+        // Check if the passed string is one of the allowed values
+        if (!in_array($string, $allowedStrings)) {
+            // Throw an exception or return an error message if the string is not allowed
+            throw new InvalidArgumentException("Invalid stream type. Allowed types are: " . implode(", ", $allowedStrings));
+        }
+
+        return ClassGroup::all()->filter(function ($classgroup) use($string) {
+            return $classgroup->stream == $string;
+        })->values();
+    }
+
+    // ClassGroups with courses less than a speicfic credithour
+    public static function classgroups_with_less_than($credithour){
+        return ClassGroup::all()->filter(function ($classgroup) use($credithour) {
+            return $classgroup->courses->sum('credit_hour') < $credithour;
+        })->values();
+    }
 
 }

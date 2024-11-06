@@ -24,6 +24,8 @@ class Course extends Model
          'credit_hour',
          'lecturers_id',
          'department_id ',
+         'year',
+         'graduate_type',
     ];
 
     // ATTRIBUTES
@@ -152,6 +154,14 @@ class Course extends Model
         return in_array($string,$this->scheduled_streams);
     }
 
+    // Check if a course is yet to be scheduled for stream
+    public function isYetToBeScheduledForStream($string)
+    {
+        return in_array($string, $this->registered_streams) 
+        && 
+        !in_array($string, $this->scheduled_streams);
+    }
+
     // Check if course is fully scheduled for a Stream
     public function isFullyScheduledForStream($string)
     {
@@ -163,10 +173,7 @@ class Course extends Model
     // Get all courses yet to be scheduled for a particular stream
     public static function courses_to_be_scheduled_for_stream(String $string){
         $courses = Course::all()->filter(function ($course) use($string) {
-            return 
-                    in_array($string,$course->registered_streams) 
-                    && 
-                    !in_array($string,$course->scheduled_streams);
+            return $course->isYetToBeScheduledForStream($string);
         });
 
         return $courses;

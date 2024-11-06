@@ -16,22 +16,33 @@ class ClassGroupCourseSeeder extends Seeder
      */
     public function run(): void
     {
-        $semesters = Semester::all();
+        // $semesters = Semester::all();
         $classgroups = ClassGroup::all();
 
-        foreach($semesters as $semester){
+        // foreach($semesters as $semester){
             foreach($classgroups as $classgroup){
-                $courses =  rand(7,9);
-                for($i=0; $i<=$courses; $i++){
-                    $course = Course::inRandomOrder()->first();
+
+                // Set the core courses
+                foreach($classgroup->department->coursesForYear($classgroup->year) as $course){
                     $cgc = new ClassGroupCourse;
                     $cgc->class_group_id = $classgroup->id; 
                     $cgc->course_id = $course->id; 
-                    $cgc->semester_id = $semester->id;
+                    $cgc->semester_id = Semester::getActiveSemester()->id;
                     $cgc->save();
 
                 }
+
+                // Handle the elective courses
+                for($i=1; $i<=rand(1,2); $i++){
+                    $cgc = new ClassGroupCourse;
+                    $cgc->class_group_id = $classgroup->id; 
+                    $cgc->course_id = $classgroup->possibleElectiveCourses()->random()->id; 
+                    $cgc->is_elective = 1; 
+                    $cgc->semester_id = Semester::getActiveSemester()->id;
+                    $cgc->save();
+                }
+
             }
-        }
+        // }
     }
 }

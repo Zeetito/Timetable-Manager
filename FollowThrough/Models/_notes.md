@@ -25,10 +25,17 @@
 ## Role Class
     - Considering Permissions as well.
 
+## ClassGroupCourse
+    - currently handling instances for the active semester alone
+
 ## CourseSchedule Class
     - Duration is in nearest whole number. factor for halves.
+    - Should be able to merge instances
+
 
     - Factor: schedules could be specified as lab only, auditorium only or as alternating weekly or 2 weeks such that, this week lab, the next not... etc. 
+## CourseUser Class
+    - There's current_elective_per user on the classgroups to determine how many electives a user can b assigned to
 
 
     <!-- ----------------- -->

@@ -142,6 +142,12 @@ class CourseScheduleController extends Controller
             // NB: Semester is active semester
             $courses = Course::whereIn('id', $courses_id)->get();
             foreach($courses as $course) {
+
+                // Check if the course is registered for the Stream
+                if(!$course->isYetToBeScheduledForStream($string)) {
+                        continue;
+                    }
+
         
                 // Declare the taken_day variable
                 $taken_day = null;
@@ -223,7 +229,9 @@ class CourseScheduleController extends Controller
                 'Thursday' => 1,
                 'Friday' => 0.75
             ];
-
+            // Randomise the days
+            shuffle($filtered_days);
+            
             foreach ($filtered_days as $day) {
                 
                 // Check if the day has exceeded it's weight
@@ -391,7 +399,8 @@ class CourseScheduleController extends Controller
         // If cache is not existing
         if(!$cache_courses_id){
             // query and store cache in variable
-            $courses_to_be_scheduled_for_stream = Course::courses_to_be_scheduled_for_stream($stream);
+            // $courses_to_be_scheduled_for_stream = Course::courses_to_be_scheduled_for_stream($stream);
+            $courses_to_be_scheduled_for_stream = Course::all();
             $courses_id = $courses_to_be_scheduled_for_stream->pluck('id')->toArray();
             Cache::put($key, $courses_id, 3600);   
             $cache_courses_id = Cache::get($key, null);

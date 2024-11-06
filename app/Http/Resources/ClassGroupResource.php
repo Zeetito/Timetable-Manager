@@ -18,7 +18,7 @@ class ClassGroupResource extends JsonResource
             'id' => $this->id,
             'name' => $this->program->name.'-('. $this->program_stream->type.')',
             // slug
-            'students_count' => $this->students_count, 
+            // 'students_count' => $this->students_count, 
             'is_divided' => $this->is_divided,
             'year' => $this->year,
             'start_year' => $this->start_year,

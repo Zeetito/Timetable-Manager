@@ -49,6 +49,12 @@ class Department extends Model
         return $this->hasMany(Room::class);
     }
 
+    // FUNCTOINS
+    // Get courses for a particular year
+    public function coursesForYear($year){
+        return $this->courses()->where('year',$year)->get();
+    }
+
 
  // Get PostGraduate programs
     public function pg_programs(){

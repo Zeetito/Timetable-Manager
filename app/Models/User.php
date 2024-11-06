@@ -104,6 +104,18 @@ class User extends Authenticatable
             return $this->registered_courses_forSem();
         }
 
+        // Get registered elective courses
+        public function getRegisteredElectiveCoursesAttribute()
+        {
+            return $this->class_group ? $this->class_group->elective_courses->intersect($this->registered_courses) : null;
+        }
+
+        // Core Courses
+        public function getRegisteredCoreCoursesAttribute()
+        {
+            return $this->class_group ? $this->class_group->core_courses->intersect($this->registered_courses) : null;
+        }
+
         // Get registered Credit hours
         public function getRegisteredCreditHoursAttribute()
         {

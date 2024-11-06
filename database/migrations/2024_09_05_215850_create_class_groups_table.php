@@ -20,6 +20,8 @@ return new class extends Migration
 
             $table->integer('year');
 
+            $table->integer('current_elective_per_student')->nullable(); //set to null on new semester creation
+
             $table->boolean('is_divided')->default(0);
                     
             $table->date('start_year');

@@ -32,6 +32,7 @@ class ClassGroupCourse extends Model
         return $this->belongsTo(Course::class);
     }
 
+    //factor priority in terms of location
 
 
 }
