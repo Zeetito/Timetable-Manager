@@ -13,8 +13,8 @@ class ClassGroupDivision extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
         'class_group_id',
-        'division_number',
         'users_id',
     ];
 
@@ -46,5 +46,14 @@ class ClassGroupDivision extends Model
     {
         return User::whereIn('id', $this->users_id)->get();
     }
+
+    // return the Code Attribute
+    public function getCodeAttribute()
+    {
+        return $this->class_group_id."_".$this->name;
+    }
+
+
+    // PUBLIC STATIC FUNCTIONS
 
 }

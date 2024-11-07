@@ -102,7 +102,7 @@ class ClassGroupDivisionController extends Controller
     }
 
     // Delete
-public function destroy(ClassGroupDivision $classGroupDivision){
+    public function destroy(ClassGroupDivision $classGroupDivision){
         // Get the users_id of the division being deleted
         $usersToDistribute = $classGroupDivision->users_id;
         
@@ -138,6 +138,57 @@ public function destroy(ClassGroupDivision $classGroupDivision){
             return response()->json(['error' => 'Failed to delete ClassGroupDivision due to database error: ' . $e->getMessage()], 500);
         }
     }
+
+
+        // Divide a classgroup into multiple divisions
+    public function divide(Request $request, ClassGroup $classgroup){
+
+        // check if classGroup is already divided
+        if ($classgroup->is_divided) {
+            return response()->json(['error' => 'ClassGroup is already divided.'], 400);
+        }
+
+        // Create a validator instance
+        $validator = Validator::make($request->all(), [
+            'number_of_divisions' => 'required|integer', 
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $validator->errors()
+            ], 422);
+        }
+
+        $users_id = $classgroup->users()->pluck('id')->toArray();
+
+        $users_count = count($users_id);
+
+        // randomise usersId
+        shuffle($users_id);
+
+        // Calculate the number of users to distribute to each division
+        $usersChunk = array_chunk($users_id, ceil($users_count / $request->number_of_divisions));
+
+        // Distribute the users among the divisions
+        foreach ($usersChunk as $index => $users) {
+            $classgroup->divisions()->create([
+                'name' => chr($index + 65),//65 = A
+                'class_group_id' => $classgroup->id,
+                'users_id' => $users,  // Distribute chunk
+            ]);
+        }
+
+        $classgroup->is_divided = 1;
+        $classgroup->save();
+
+        return response()->json(['message' => 'ClassGroup Divided successfully!'], 200);
+
+    }
+    
+
+
 
 
 }

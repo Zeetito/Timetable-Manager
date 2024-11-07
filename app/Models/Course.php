@@ -168,6 +168,20 @@ class Course extends Model
         return  $this->course_schedules_for_stream($string)->sum('approx_duration') == $this->credit_hour;
     }
 
+    // Check if a course should have a divided set of schedule for the given stream
+    public function shouldHaveDividedScheduleSets($stream){
+
+        $class_groups = $this->class_groups_of_stream($stream);
+        if($class_groups->count() > 1){
+            return false;
+        }elseif($class_groups->count() == 1 && $class_groups->first()->is_divided == true ){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
 
     // STATIC FUNCTIONS
     // Get all courses yet to be scheduled for a particular stream

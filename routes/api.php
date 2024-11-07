@@ -599,6 +599,13 @@ Route::middleware('auth:sanctum')->get('/hello', function (Request $request) {
         return response()->json($classGroupDivision->users());
     });
 
+    // Functions
+    // Divide ClassGroup into a number of divisions
+    Route::post('/classgroup_divisions/{classgroup}/divide', [ClassGroupDivisionController::class, 'divide'])
+    ->middleware('auth:sanctum')
+    ;
+
+
 // 8-USERS
     //Index
     Route::get('/users', [UserController::class, 'index'])

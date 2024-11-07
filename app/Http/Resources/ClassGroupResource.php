@@ -19,7 +19,7 @@ class ClassGroupResource extends JsonResource
             'name' => $this->program->name.'-('. $this->program_stream->type.')',
             // slug
             // 'students_count' => $this->students_count, 
-            'is_divided' => $this->is_divided,
+            'is_divided' => $this->is_divided == 1?true:false,
             'year' => $this->year,
             'start_year' => $this->start_year,
             'end_year' => $this->end_year,

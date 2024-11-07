@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\ProgramStream;
 use App\Models\CourseSchedule;
 use App\Jobs\UserNotificationJob;
+use App\Models\ClassGroupDivision;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\UserNotification;
 use App\Http\Controllers\Api\V1\CourseScheduleController;
@@ -34,6 +35,13 @@ Route::get('/baba', function () {
 })->name('baba');
 
 Route::get('/hello', function () {
+
+    return ClassGroupDivision::all();
+    
+    return User::find(1)->class_code;
+    return User::find(1)->class_group->is_divided;
+
+    return Course::find(44)->class_groups_of_stream('regular')->first();
     $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
    

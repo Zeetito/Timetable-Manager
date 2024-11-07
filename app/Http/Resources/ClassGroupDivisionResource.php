@@ -17,6 +17,7 @@ class ClassGroupDivisionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'code' => $this->code,
             'class_group_id' => $this->class_group_id,
             'users_id' => $this->users_id,
             'class_group' => new ClassGroupResource($this->whenLoaded('class_group')),

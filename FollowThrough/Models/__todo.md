@@ -7,6 +7,11 @@
 
 
 Up Next: 
+### Factor ClassGroups with division
+##      Users Class_code ready to be compared with the division code
+## Next: How does it play in the scheduling contoller loop
+
+what if all divisions of a classgroup are divided the classgroup is_divided status must be updated.
 
 
 

@@ -13,6 +13,7 @@ use App\Models\CourseUser;
 use App\Models\SemesterUser;
 use App\Models\CourseSchedule;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\ClassGroupDivision as CGD;
 use App\Http\Resources\UserResource;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -149,6 +150,16 @@ class User extends Authenticatable
             );
         }
 
+        // Get the Class Code Attribute
+        public function getClassCodeAttribute()
+        {
+            return $this->class_group 
+                    ? $this->class_group->is_divided 
+                        ? $this->class_group->id."_".$this->class_group_division()->name 
+                        : $this->class_group->name
+                    : null;
+        }
+
         
 
 
@@ -163,6 +174,21 @@ class User extends Authenticatable
         public function role()
         {
             return $this->hasOneThrough(Role::class, RoleUser::class, 'user_id', 'id', 'id', 'role_id');
+        }
+
+        // CalssGroup Division
+        public function class_group_division()
+        {
+           $divisions =$this->class_group->divisions;
+
+           foreach($divisions as $division){
+            if(collect($division->users_id)->contains($this->id)){
+                return $division;
+            }
+           }
+
+            return ClassGroupDivision::whereIn('users_id',1)->first();
+            return ClassGroupDivision::whereIn('users_id',[$this->id])->first();
         }
 
 
