@@ -77,6 +77,20 @@ class ClassGroup extends Model
         return $courses;
     }
 
+    // Get code attribute
+    public function getCodeAttribute()
+    {
+        if($this->is_divided){
+            $result =  collect();
+            foreach($this->divisions as $division){
+                $result->push($division->code);
+            }
+            return $result->implode(',');      
+        }else{
+            return $this->id;
+        }
+    }
+
 
     // Get Student Count Attribute
     public function getStudentsCountAttribute()

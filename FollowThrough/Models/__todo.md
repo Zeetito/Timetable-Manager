@@ -19,3 +19,4 @@ what if all divisions of a classgroup are divided the classgroup is_divided stat
 Issues with Department and their programs of studies and the classgroup in relation to them
 1. How many programs on average is directly related to a department?
 2. Should a course be tied to a program or a department?
+

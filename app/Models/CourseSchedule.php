@@ -23,6 +23,7 @@ class CourseSchedule extends Model
         'stream',
         'room_id',
         'day',
+        'class_codes',
         'semester_id',
     ];
 

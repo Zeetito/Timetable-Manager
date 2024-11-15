@@ -36,10 +36,29 @@ Route::get('/baba', function () {
 
 Route::get('/hello', function () {
 
+    return CourseSchedule::all();
+
+    return Course::find(1)->is_class_code_fully_scheduled_for_stream('1_A','regular');
+    return Course::find(1)->next_class_code_for_stream('regular');
+    return Course::find(1)->isFullyScheduledForStream('regular');
+    // return CourseSchedule::limit(10)->get()->sum('approx_duration');
+
+    return implode(',', $eyi);
+
+    
+    $class_codes = Course::find(1)->class_codes_for_stream('regular');  
+    foreach($class_codes as $code){
+        echo " $code";
+    } 
+
+    return "_0";
+    return ClassGroup::find(1)->courses;
+
+    return User::find(1)->registered_courses;
+    return Course::find(1)->isFullyScheduledForStream('regular');
     return ClassGroupDivision::all();
     
     return User::find(1)->class_code;
-    return User::find(1)->class_group->is_divided;
 
     return Course::find(44)->class_groups_of_stream('regular')->first();
     $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];

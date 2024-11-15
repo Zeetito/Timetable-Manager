@@ -144,9 +144,9 @@ class CourseScheduleController extends Controller
             foreach($courses as $course) {
 
                 // Check if the course is registered for the Stream
-                if(!$course->isYetToBeScheduledForStream($string)) {
-                        continue;
-                    }
+                // if(!$course->isYetToBeScheduledForStream($string)) {
+                //         continue;
+                //     }
 
         
                 // Declare the taken_day variable
@@ -156,10 +156,10 @@ class CourseScheduleController extends Controller
                 if (!$course->isFullyScheduledForStream($string)) {
         
                     $attempts = 0;
-                    $maxAttempts = 3; // Limit the number of scheduling attempts
+                    $maxAttempts = 8; // Limit the number of scheduling attempts
         
                     // While the course is not fully scheduled for the stream
-                    while (!$course->isFullyScheduledForStream($string) && $attempts < $maxAttempts) {
+                    while ($attempts < $maxAttempts) {
                         $attempts++;
         
                         // If course is not fully scheduled, assign the taken day and proceed
@@ -186,6 +186,9 @@ class CourseScheduleController extends Controller
                                 ->where('reg_cap', '>=', $totalStudents) // Consistent capacity check
                                 ; //get() is already on the rooms function
         
+                             // if the set is more than one, handle the loop accordingly
+                            // for($h){}
+
                             $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day);
                         }
         
@@ -210,8 +213,19 @@ class CourseScheduleController extends Controller
         // Find Available Room Function
         protected function findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day)
         {
+
+            // Get The Calsscodes to be used in the Schedule
+            // $class_codes = $course->class_codes_for_stream($string);
+
+            // Get the next class_Code to be sceduled
+            $next_class_code = $course->next_class_code_for_stream($string);
+
+            // Get the next Remaining Duration
+            $remainingDuration = $course->remaining_duration_for_class_code($next_class_code, $string);
+
             // Calculate the total duration of the course based on credit hours
-            $remainingDuration = $course->remaining_duration_for_stream($string) * 60; // Convert credit hours to minutes
+            // $remainingDuration = ($course->remaining_duration_for_stream($string)) * 60; // Convert credit hours to minutes
+            $remainingDuration = ($remainingDuration * 60); // Convert credit hours to minutes
             $maxDurationPerSlot = 120; // Maximum 2 hours per slot in minutes
 
             $days = self::DAYS;
@@ -235,7 +249,8 @@ class CourseScheduleController extends Controller
             foreach ($filtered_days as $day) {
                 
                 // Check if the day has exceeded it's weight
-                $loadFactor = CourseSchedule::where('day', $day)->count() * $dayWeights[$day];
+                $loadFactor = CourseSchedule::where('day', $day)->count() * ($dayWeights[$day] ?? 1);
+
 
                 // Schedule on this day if the load factor is acceptable
                 if ($loadFactor >= $threshold) {
@@ -288,17 +303,19 @@ class CourseScheduleController extends Controller
                                             'end_time' => $endTime,
                                             'stream' => $string,
                                             'room_id' => $room->id,
+                                            'class_codes' => $next_class_code,
                                             'day' => $day,
                                             'semester_id' => Semester::getActiveSemester()->id
                                         ]);
 
                                         // // Subtract the block duration from the remaining duration
-                                        // $remainingDuration -= $slotDuration;
+                                        $remainingDuration -= $slotDuration;
 
                                         // // If all required hours are scheduled, exit the loop
-                                        // if ($remainingDuration <= 0) {
-                                            return true; // Return true if all blocks are scheduled
-                                        // }
+                                        if ($remainingDuration <= 0) {
+                                            return true; 
+                                            // Return true if all blocks are scheduled
+                                        }
                                     }
                             }
                         }
@@ -401,7 +418,7 @@ class CourseScheduleController extends Controller
             // query and store cache in variable
             // $courses_to_be_scheduled_for_stream = Course::courses_to_be_scheduled_for_stream($stream);
             $courses_to_be_scheduled_for_stream = Course::all();
-            $courses_id = $courses_to_be_scheduled_for_stream->pluck('id')->toArray();
+            $courses_id = $courses_to_be_scheduled_for_stream->take(15)->pluck('id')->toArray();
             Cache::put($key, $courses_id, 3600);   
             $cache_courses_id = Cache::get($key, null);
         }
@@ -418,8 +435,8 @@ class CourseScheduleController extends Controller
                $udpated_cache_courses_id = array_slice($cache_courses_id, 10);
 
             //    Update cache
-               Cache::put($key, $udpated_cache_courses_id, 3600);
-               $cache_courses_id = Cache::get($key, null);
+            //    Cache::put($key, $udpated_cache_courses_id, 3600);
+            //    $cache_courses_id = Cache::get($key, null);
 
             }
 

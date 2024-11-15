@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('stream')->nullable();
             $table->foreignId('room_id')->nullable();
             $table->string('day')->nullable();
+            $table->text('class_codes')->nullable();
             $table->foreignId('semester_id');
             $table->timestamps();
 

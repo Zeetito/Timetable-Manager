@@ -24,6 +24,7 @@ class CourseScheduleResource extends JsonResource
             'approx_duration' => $this->approx_duration,
             'duration_in_words' => $this->duration,
             'room_id' => $this->room_id,
+            'class_codes' => $this->class_codes,
             'day' => $this->day,
             'semester_id' => $this->semester_id,
         ];

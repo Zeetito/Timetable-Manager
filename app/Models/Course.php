@@ -165,13 +165,14 @@ class Course extends Model
     // Check if course is fully scheduled for a Stream
     public function isFullyScheduledForStream($string)
     {
-        return  $this->course_schedules_for_stream($string)->sum('approx_duration') == $this->credit_hour;
+        return $this->course_schedules_for_stream($string)->sum('approx_duration') == ($this->credit_hour * $this->schedule_set_for_stream($string));
     }
 
     // Check if a course should have a divided set of schedule for the given stream
     public function shouldHaveDividedScheduleSets($stream){
 
         $class_groups = $this->class_groups_of_stream($stream);
+
         if($class_groups->count() > 1){
             return false;
         }elseif($class_groups->count() == 1 && $class_groups->first()->is_divided == true ){
@@ -180,6 +181,86 @@ class Course extends Model
             return false;
         }
 
+    }
+
+    /* 
+    Get the Schedule set for a course
+    This set is the number of sets of the course we can have for a particular stream
+    it mostly applies when just one classgroups takes the course and the classgroup is divided
+    */
+
+    public function schedule_set_for_stream($string){
+
+        if(!$this->shouldHaveDividedScheduleSets($string)){
+            return 1;
+        }
+
+        return $this->class_groups_of_stream($string)->first()->divisions->count();
+    }
+
+    // Get the class codes for the division sets of the course
+    public function class_codes_for_stream($string){
+        // check if the course should have a divided sets of schedules
+     if($this->shouldHaveDividedScheduleSets($string)){
+        $class_groups = $this->class_groups_of_stream($string);
+        $target = [];
+        foreach($class_groups->first()->divisions as $division){
+            $target[] = $division->code;
+        }
+        return $target;
+        // if not
+     }else{
+        $target = [];
+        foreach($this->class_groups_of_stream($string) as $classgroup){
+            $target[] = "$classgroup->code";
+        }
+        return $target;
+     }
+    }
+
+    // Get the courseSchedules for a particular class_code of a course for a stream
+    public function course_schedules_for_class_code($class_code, $string){
+        return $this->course_schedules_for_stream($string)
+        ->filter(function ($schedule) use ($class_code) {
+            return str_contains($schedule->class_codes, $class_code);
+            // return in_array([$class_code], $schedule->class_codes); // Check if class_code is in class_codes array
+        });
+    }
+
+    
+    // Check if a class_code is fully scheduled for a particular stream for the related course
+    public function is_class_code_fully_scheduled_for_stream($class_code, $string){
+        // Filter schedules by checking if $class_code is in the class_codes array for each schedule
+        $totalDuration = $this->course_schedules_for_class_code($class_code, $string)->sum('approx_duration');
+
+        return $totalDuration >= $this->credit_hour;
+    }
+
+    // Get the next class_code to be scheduled for a particular stream
+    public function next_class_code_for_stream($string){
+
+        // if the course should have divided sets
+        if($this->shouldHaveDividedScheduleSets($string)){
+            $class_codes = $this->class_codes_for_stream($string);
+            foreach($class_codes as $class_code){
+                if(!$this->is_class_code_fully_scheduled_for_stream($class_code, $string)){
+                    return $class_code;
+                }
+            }
+        }else{
+            // return the array implode to text
+
+            return  implode(", ", $this->class_codes_for_stream($string));
+        }
+
+        
+    }
+
+    // Get the remaining duration for a class_code to be scheduled next
+    public function remaining_duration_for_class_code($class_code, $string){
+        $totalDuration = $this->course_schedules_for_class_code($class_code, $string)->sum('approx_duration');
+
+        return $this->credit_hour - $totalDuration <= 0 ? 0 : $this->credit_hour - $totalDuration ;
     }
 
 
@@ -210,7 +291,9 @@ class Course extends Model
     // Get the remaining duration to be scheduled for a course
     public function remaining_duration_for_stream(String $string){
 
-        return $this->credit_hour - $this->course_schedules_for_stream($string)->sum('approx_duration');
+        $raw = $this->credit_hour - $this->course_schedules_for_stream($string)->sum('approx_duration');
+
+        return $raw * $this->schedule_set_for_stream($string);
     }
 
 }
