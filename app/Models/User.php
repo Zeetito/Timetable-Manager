@@ -324,7 +324,9 @@ class User extends Authenticatable
 
         // CourseSchedule instances
         public function course_schedules(){
-            return CourseSchedule::whereBelongsTo($this->registered_courses)->get();
+            return CourseSchedule::whereBelongsTo($this->registered_courses)->get()->filter(function ($course_schedule) {
+                return str_contains($course_schedule->class_codes, $this->class_code);
+            })->values();
         }
 
         // Get all Idl Students

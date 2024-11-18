@@ -236,6 +236,26 @@ class Course extends Model
         return $totalDuration >= $this->credit_hour;
     }
 
+    // Check the available days for a classcode to be sceduled for a stream for the related course
+    public function available_days_for_class_code($class_code, $string){
+        $taken = $this->course_schedules_for_class_code($class_code, $string)->pluck('day')->unique();
+        // Get the days utilised by the stream
+        
+        if($this->is_class_code_fully_scheduled_for_stream($class_code, $string)){
+            $days = [];
+        }else{
+            $days = collect(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])->diff($taken)->toArray();
+        }
+
+        return $days;
+
+    }
+
+    // Check if a class_code is scheduled for a day already for a particular stream for the related course
+    public function is_class_code_scheduled_for_day($class_code, $string, $day ){
+        return $this->course_schedules_for_class_code($class_code, $string)->where('day', $day)->count() > 0;
+    }
+
     // Get the next class_code to be scheduled for a particular stream
     public function next_class_code_for_stream($string){
 

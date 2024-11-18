@@ -8,6 +8,7 @@ use App\Models\Semester;
 use Illuminate\Http\Request;
 use App\Models\CourseSchedule;
 use App\Jobs\CourseScheduleJob;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
@@ -143,30 +144,9 @@ class CourseScheduleController extends Controller
             $courses = Course::whereIn('id', $courses_id)->get();
             foreach($courses as $course) {
 
-                // Check if the course is registered for the Stream
-                // if(!$course->isYetToBeScheduledForStream($string)) {
-                //         continue;
-                //     }
-
-        
-                // Declare the taken_day variable
-                $taken_day = null;
         
                 // Check if the course is not fully scheduled
-                if (!$course->isFullyScheduledForStream($string)) {
-        
-                    $attempts = 0;
-                    $maxAttempts = 8; // Limit the number of scheduling attempts
-        
-                    // While the course is not fully scheduled for the stream
-                    while ($attempts < $maxAttempts) {
-                        $attempts++;
-        
-                        // If course is not fully scheduled, assign the taken day and proceed
-                        $first_part = $course->course_schedules_for_stream($string)->first();
-                        if ($first_part) {
-                            $taken_day = $first_part->day;
-                        }
+                while (!$course->isFullyScheduledForStream($string)) {
         
                         $classGroups = $course->class_groups_of_stream($string);
                         $totalStudents = $classGroups->sum('students_count');
@@ -178,7 +158,7 @@ class CourseScheduleController extends Controller
                             ->get();
         
                         // Try finding a room in the department first
-                        $isRoomFound = $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day);
+                        $isRoomFound = $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold);
         
                         // Priority 2: If no room is found, expand to all classrooms in the college
                         if (!$isRoomFound) {
@@ -189,18 +169,15 @@ class CourseScheduleController extends Controller
                              // if the set is more than one, handle the loop accordingly
                             // for($h){}
 
-                            $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day);
+                            $this->findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold);
                         }
         
-                        // Set day taken variable to null after scheduling
-                        $taken_day = null;
-        
                         // Break if no room found to prevent infinite looping
-                        // if (!$isRoomFound) {
-                        //     Log::warning("Room not found for course {$course->id} on day {$taken_day}");
-                        //     break;
-                        // }
-                    }
+                        if (!$isRoomFound) {
+                            Log::warning("Room not found for course {$course->id} in stream {$string}");
+                            break;
+                        }
+                    
                 }
         
                 // continue;
@@ -211,7 +188,7 @@ class CourseScheduleController extends Controller
     // SCHEDULING HELPER FUNCTIONS
 
         // Find Available Room Function
-        protected function findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold, $taken_day)
+        protected function findAvailableRoom($availableClassrooms, $classGroups, $staff, $course, $string, $threshold)
         {
 
             // Get The Calsscodes to be used in the Schedule
@@ -228,11 +205,9 @@ class CourseScheduleController extends Controller
             $remainingDuration = ($remainingDuration * 60); // Convert credit hours to minutes
             $maxDurationPerSlot = 120; // Maximum 2 hours per slot in minutes
 
-            $days = self::DAYS;
-            // Filter off the taken day and work with the rest
-            $filtered_days = $taken_day !== null ? array_values(array_filter($days, function($day) use ($taken_day) {
-                return $day != $taken_day;
-            })) : $days;
+            
+            // Get the days available for schedule for the Classcodes 
+            $filtered_days = $course->available_days_for_class_code($next_class_code, $string);
 
 
             // Introducing Day weights
@@ -249,14 +224,14 @@ class CourseScheduleController extends Controller
             foreach ($filtered_days as $day) {
                 
                 // Check if the day has exceeded it's weight
-                $loadFactor = CourseSchedule::where('day', $day)->count() * ($dayWeights[$day] ?? 1);
+                // $loadFactor = CourseSchedule::where('day', $day)->count() * ($dayWeights[$day] ?? 1);
 
 
-                // Schedule on this day if the load factor is acceptable
-                if ($loadFactor >= $threshold) {
-                    // Skip day
-                    continue;
-                }
+                // Schedule on this day if the load factor is acceptable and also check if the next class code is null
+                // if ($loadFactor >= $threshold || $next_class_code == null) {
+                //     // Skip day
+                //     continue;
+                // }
 
                 
                 foreach ($availableClassrooms as $room) {
@@ -309,13 +284,13 @@ class CourseScheduleController extends Controller
                                         ]);
 
                                         // // Subtract the block duration from the remaining duration
-                                        $remainingDuration -= $slotDuration;
+                                        // $remainingDuration -= $slotDuration;
 
                                         // // If all required hours are scheduled, exit the loop
-                                        if ($remainingDuration <= 0) {
+                                        // if ($remainingDuration <= 0) {
                                             return true; 
-                                            // Return true if all blocks are scheduled
-                                        }
+                                        //     // Return true if all blocks are scheduled
+                                        // }
                                     }
                             }
                         }

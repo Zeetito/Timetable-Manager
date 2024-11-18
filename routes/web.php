@@ -36,9 +36,14 @@ Route::get('/baba', function () {
 
 Route::get('/hello', function () {
 
-    return CourseSchedule::all();
+    return User::find(1)->course_schedules();
 
-    return Course::find(1)->is_class_code_fully_scheduled_for_stream('1_A','regular');
+    return Course::find(1)->available_days_for_class_code('1_A','regular');
+    return  CourseSchedule::all();
+    $res = Course::find(1)->course_schedules_for_stream('regular')->where('class_codes', '1_A');
+    return $res->count();
+
+
     return Course::find(1)->next_class_code_for_stream('regular');
     return Course::find(1)->isFullyScheduledForStream('regular');
     // return CourseSchedule::limit(10)->get()->sum('approx_duration');
